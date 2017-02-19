@@ -34,7 +34,12 @@ instance Monad Parser where
                   []        -> []
                   [(v,out)] -> parse (f v) out)
 
+instance Alternative Parser where
+  empty = P (\inp -> [])
 
+  p <|> q = P (\inp -> case parse p inp of
+                  [] -> parse q inp
+                  [(v,out)] -> [(v,out)])
 
 parse :: Parser a -> String -> [(a, String)]
 parse (P p) inp = p inp
