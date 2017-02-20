@@ -54,8 +54,65 @@ three = pure g <*> item <*> item <*> item
         where g x y z = (x,z)
 
 three' :: Parser (Char,Char)
-three' = do
-            x <- item
+three' = do x <- item
             item
             z <- item
             return (x,z)
+
+sat :: (Char -> Bool) -> Parser Char
+sat p = do x <- item
+           if p x then return x else empty
+
+digit :: Parser Char
+digit = sat isDigit
+
+lower :: Parser Char
+lower = sat isLower
+
+upper :: Parser Char
+upper = sat isUpper
+
+letter :: Parser Char
+letter = sat isAlpha
+
+alphanum :: Parser Char
+alphanum = sat isAlphaNum
+
+char :: Char -> Parser Char
+char x = sat ( == x)
+
+string :: String -> Parser String
+string [] = return []
+string (x:xs) = do char x
+                   string xs
+                   return (x:xs)
+
+{-
+  many x = some x <|> pure []          zero or more
+  some x = pure (:) <*> x <*> many x   one or more
+-}
+
+{-identifiers (variable names) comprising a lower-case letter
+  followed by zero or more alphanumeric characters-}
+
+ident :: Parser String
+ident = do x  <- lower
+           xs <- many alphanum
+           return (x:xs)
+
+--natural numbers comprising one or more digits
+nat :: Parser Int
+nat = do xs <- some digit
+         return (read xs)
+
+--spacing comprising zero or more space, tab, and newline characters
+space :: Parser ()
+space = do many (sat isSpace)
+           return ()
+
+int :: Parser Int
+int = do char '-'
+         n <- nat
+         return (-n)
+      <|> nat
+
