@@ -97,7 +97,17 @@ instance Functor (Reader r) where
 instance Applicative (Reader r) where
 
   pure :: a -> Reader r a
-  pure a = Reader $ undefined
+  pure a = Reader $ \r -> a
 
   (<*>) :: Reader r (a -> b) -> Reader r a -> Reader r b
-  (Reader rab) <*> (Reader ra) = Reader $ \r -> undefined
+  (Reader rab) <*> (Reader ra) = Reader $ rab <*> ra
+
+    -- Alternate way
+    -- rab r :: (a->b)
+    -- ra r  :: a
+    -- rab r (ra r) :: b
+    -- Reader $ \r -> rab r (ra r)
+
+ ------------------------------------------------------------
+
+  
