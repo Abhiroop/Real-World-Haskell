@@ -4,6 +4,7 @@ module MTL where
 
 import Control.Applicative
 import Data.Bifunctor
+import Control.Monad.Trans.Class
 
 newtype Identity a = Identity {runIdentity :: a} deriving (Eq,Show)
 
@@ -135,3 +136,12 @@ instance (Monad m) => Monad (StateT s m) where
     \s -> do
       (a,s')  <- sma s
       (runStateT $ asmb a) s'
+
+instance MonadTrans (StateT s) where
+
+  lift ::  Monad m => m a -> StateT s m a
+  lift ma = StateT $
+    \s -> do
+      a <- ma
+      return (a,s)
+
