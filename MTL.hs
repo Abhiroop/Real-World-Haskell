@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE InstanceSigs #-}
 
 module MTL where
@@ -5,6 +6,7 @@ module MTL where
 import Control.Applicative
 import Data.Bifunctor
 import Control.Monad.Trans.Class
+import Control.Monad.IO.Class
 
 newtype Identity a = Identity {runIdentity :: a} deriving (Eq,Show)
 
@@ -144,4 +146,35 @@ instance MonadTrans (StateT s) where
     \s -> do
       a <- ma
       return (a,s)
+
+-----------------------------------------------------------------------------------
+
+--MonadIO of everything
+
+--lift :: m a -> t m a
+--liftIO :: IO a -> m a
+
+--EitherT
+
+-- instance (MonadIO m) => MonadIO (EitherT e m) where
+--   liftIO = lift . liftIO
+
+--MaybeT
+
+instance (MonadIO m, MonadTrans MaybeT) => MonadIO (MaybeT m) where
+  liftIO :: IO a -> MaybeT m a
+  liftIO = lift . liftIO
+
+--ReaderT
+
+instance (MonadIO m, MonadTrans (ReaderT r)) => MonadIO (ReaderT r m) where
+  liftIO :: IO a -> ReaderT r m a
+  liftIO = lift . liftIO
+
+-- StateT
+
+instance (MonadIO m) => MonadIO (StateT s m) where
+  liftIO :: IO a -> StateT s m a
+  liftIO = lift . liftIO
+
 
