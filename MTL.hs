@@ -114,3 +114,24 @@ instance (Functor m) => Functor (StateT s m) where
   fmap f (StateT sma) = StateT $
     \s -> let ma = sma s -- ma :: m (a,s)
           in  fmap (first f) ma -- Eg: first (+3) (1,2) = (4,2) first is from Bifunctor
+
+instance (Monad m) => Applicative (StateT s m) where
+
+  pure a = StateT $ \s -> pure (a,s)
+
+  (<*>) :: StateT s m (a -> b) -> StateT s m a -> StateT s m b
+  StateT smab <*> StateT sma = StateT $
+    \s -> do
+      (ab,s') <- smab s
+      (a,s'')  <- sma s'
+      return (ab a,s'')
+
+instance (Monad m) => Monad (StateT s m) where
+
+  return = pure
+
+  (>>=) :: StateT s m a -> (a -> StateT s m b) -> StateT s m b
+  StateT sma >>= asmb = StateT $
+    \s -> do
+      (a,s')  <- sma s
+      (runStateT $ asmb a) s'
