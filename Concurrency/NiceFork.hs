@@ -31,7 +31,23 @@ forkManged (Mgr mgr) body =
     return (M.insert tid state m, tid)
 
 -- immediately return the status of the thread
---getStatus :: ThreadManager -> ThreadId -> IO (Maybe ThreadStatus)
+getStatus :: ThreadManager -> ThreadId -> IO (Maybe ThreadStatus)
+getStatus (Mgr mgr) threadId = do
+  modifyMVar mgr $ \m ->
+    case M.lookup threadId m of
+      Nothing -> return (m,Nothing)
+      Just mvar -> do
+        status <- tryTakeMVar mvar
+        case status of
+          Nothing -> return (m, Just Running)
+          Just sth -> return (M.delete threadId m, Just sth)
+  {-
+  map <- readMVar mgr
+  case M.lookup threadId map of
+    Just mvar -> do
+      threadStatus <- readMVar mvar
+      return (Just threadStatus)
+    Nothing -> return Nothing-}
 
 -- -- block until a specific manged thread terminates
 -- waitFor :: Threadmanager -> ThreadId -> IO (Maybe ThreadStatus)
