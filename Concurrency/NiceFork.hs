@@ -2,6 +2,7 @@ module NiceFork(ThreadManager, newManager --forkManaged, getStatus, waitFor, wai
                ) where
 
 import Control.Concurrent
+import Control.Monad
 import Control.Exception (Exception, try)
 import qualified Data.Map as M
 
@@ -51,15 +52,13 @@ getStatus (Mgr mgr) threadId = do
 
 -- block until a specific managed thread terminates
 waitFor :: ThreadManager -> ThreadId -> IO (Maybe ThreadStatus)
-waitFor (Mgr mgr) tid = do
-  maybeDone <- modifyMVar mgr $ \m ->
+waitFor (Mgr mgr) tid = 
+  join . modifyMVar mgr $ \m ->
     return $ case M.updateLookupWithKey (\_ _ -> Nothing) tid m of
-      (Nothing, _)  -> (m, Nothing)
-      (Just st, m') -> (m', Just st)
-  case maybeDone of
-    Nothing -> return Nothing
-    Just st -> Just `fmap` takeMVar st
-    
--- -- block until all manged threads terminate
--- waitAll :: ThreadManger -> IO()
+      (Nothing, _)  -> (m, return Nothing)
+      (Just st, m') -> (m', Just `fmap` takeMVar st)
 
+-- block until all manged threads terminate
+waitAll :: ThreadManager -> IO()
+waitAll (Mgr mgr) = modifyMVar mgr elems >>= mapM_ takeMVar
+    where elems m = return (M.empty, M.elems m)
