@@ -1,5 +1,4 @@
-module NiceFork(ThreadManager, newManager --forkManaged, getStatus, waitFor, waitAll
-               ) where
+module NiceFork(ThreadManager, newManager,forkManaged, getStatus, waitFor, waitAll) where
 
 import Control.Concurrent
 import Control.Monad
@@ -21,9 +20,8 @@ newManager = do
   return $ Mgr mvar
 
 -- creates a new managed thread
-forkManged :: ThreadManager -> IO () -> IO ThreadId
-forkManged (Mgr mgr) body =
---modifyMVar :: MVar a -> (a -> IO (a, b)) -> IO b
+forkManaged :: ThreadManager -> IO () -> IO ThreadId
+forkManaged (Mgr mgr) body =
   modifyMVar mgr $ \m -> do
     state <- newEmptyMVar
     tid <- forkIO $ do
@@ -60,5 +58,6 @@ waitFor (Mgr mgr) tid =
 
 -- block until all manged threads terminate
 waitAll :: ThreadManager -> IO()
-waitAll (Mgr mgr) = modifyMVar mgr elems >>= mapM_ takeMVar
-    where elems m = return (M.empty, M.elems m)
+waitAll (Mgr mgr) = do
+  listofstatus <- modifyMVar mgr $ \ m -> return (M.empty, M.elems m)
+  mapM_ takeMVar listofstatus
