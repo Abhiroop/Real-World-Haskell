@@ -1,4 +1,4 @@
-module NiceFork where
+module NiceFork(ThreadManager, newManager, forkManaged, getStatus, waitFor, waitAll) where
 
 import Control.Concurrent
 import Control.Exception (Exception, try)
