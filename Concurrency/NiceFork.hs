@@ -49,9 +49,17 @@ getStatus (Mgr mgr) threadId = do
       return (Just threadStatus)
     Nothing -> return Nothing-}
 
--- -- block until a specific manged thread terminates
--- waitFor :: Threadmanager -> ThreadId -> IO (Maybe ThreadStatus)
-
+-- block until a specific managed thread terminates
+waitFor :: ThreadManager -> ThreadId -> IO (Maybe ThreadStatus)
+waitFor (Mgr mgr) tid = do
+  maybeDone <- modifyMVar mgr $ \m ->
+    return $ case M.updateLookupWithKey (\_ _ -> Nothing) tid m of
+      (Nothing, _)  -> (m, Nothing)
+      (Just st, m') -> (m', Just st)
+  case maybeDone of
+    Nothing -> return Nothing
+    Just st -> Just `fmap` takeMVar st
+    
 -- -- block until all manged threads terminate
 -- waitAll :: ThreadManger -> IO()
 
