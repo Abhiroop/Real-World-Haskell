@@ -37,3 +37,11 @@ unGetTChan (TChan readVar _) a = do
   listHead <- readTVar readVar
   newHead <- newTVar (TCons a listHead)
   writeTVar readVar newHead
+
+isEmptyTChan :: TChan a -> STM Bool
+isEmptyTChan (TChan read _) = do
+  listHead <- readTVar read
+  head <- readTVar listHead
+  case head of
+    TNil -> return True
+    TCons _ _ -> return False
