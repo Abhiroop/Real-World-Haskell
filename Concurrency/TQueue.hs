@@ -9,3 +9,8 @@ newTQueue = do
   read <- newTVar []
   write <- newTVar []
   return (TQueue read write)
+
+writeTQueue :: TQueue a -> a -> STM ()
+writeTQueue (TQueue _ write) a = do
+  listend <- readTVar write
+  writeTVar write (a:listend)
