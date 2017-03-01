@@ -31,3 +31,9 @@ writeTChan (TChan _ writeVar) a = do
   listEnd <- readTVar writeVar
   writeTVar writeVar newListEnd
   writeTVar listEnd (TCons a newListEnd)
+
+unGetTChan :: TChan a -> a -> STM ()
+unGetTChan (TChan readVar _) a = do
+  listHead <- readTVar readVar
+  newHead <- newTVar (TCons a listHead)
+  writeTVar readVar newHead
