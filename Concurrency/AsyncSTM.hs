@@ -22,3 +22,9 @@ waitSTM a = do
   case r of
     Left e -> throwSTM e
     Right a -> return a
+
+waitEither :: Async a -> Async b -> IO (Either a b)
+waitEither a b = atomically $
+  fmap Left (waitSTM a)
+    `orElse`
+  fmap Right (waitSTM b)
