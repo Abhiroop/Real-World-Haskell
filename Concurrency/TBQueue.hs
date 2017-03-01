@@ -19,3 +19,22 @@ writeTBQueue (TBQueue cap _ write) a = do
     else writeTVar cap (avail - 1)
   listend <- readTVar write
   writeTVar write (a:listend)
+
+readTBQueue :: TBQueue a -> STM a
+readTBQueue (TBQueue cap read write) = do
+  avail <- readTVar cap
+  writeTVar cap (avail + 1)
+  xs <- readTVar read
+  case xs of
+    (x:xs') -> do
+      writeTVar read xs'
+      return x
+    [] -> do
+      ys <- readTVar write
+      case ys of
+        [] -> retry
+        _ -> do
+          let (z:zs) = reverse ys
+          writeTVar write []
+          writeTVar read zs
+          return z
