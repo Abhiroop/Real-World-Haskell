@@ -25,4 +25,9 @@ readTChan (TChan readVar _) = do
       writeTVar readVar tail
       return val
 
--- writeTChan :: TChan a -> a -> STM ()
+writeTChan :: TChan a -> a -> STM ()
+writeTChan (TChan _ writeVar) a = do
+  newListEnd <- newTVar TNil
+  listEnd <- readTVar writeVar
+  writeTVar writeVar newListEnd
+  writeTVar listEnd (TCons a newListEnd)
