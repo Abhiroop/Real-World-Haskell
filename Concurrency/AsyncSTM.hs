@@ -28,3 +28,6 @@ waitEither a b = atomically $
   fmap Left (waitSTM a)
     `orElse`
   fmap Right (waitSTM b)
+
+waitAny :: [Async a] -> IO a
+waitAny asyncs = atomically $ foldr orElse retry $ map waitSTM asyncs
