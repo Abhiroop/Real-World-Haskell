@@ -1,6 +1,6 @@
 module TChan where
 
-import Control.Concurrent.STM hiding (TChan)
+import Control.Concurrent.STM hiding (TChan,readTChan)
 
 data TChan a = TChan (TVar (TVarList a)) (TVar (TVarList a))
 
@@ -45,3 +45,9 @@ isEmptyTChan (TChan read _) = do
   case head of
     TNil -> return True
     TCons _ _ -> return False
+
+readEitherTChan :: TChan a -> TChan b -> STM (Either a b)
+readEitherTChan a b =
+  fmap Left (readTChan a)
+    `orElse`
+  fmap Right (readTChan b)
