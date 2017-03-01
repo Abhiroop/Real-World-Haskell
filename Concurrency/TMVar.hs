@@ -1,6 +1,7 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 module TMVar where
 
-import Control.Concurrent.STM hiding (TMVar)
+import Control.Concurrent.STM hiding (TMVar,takeTMVar)
 
 newtype TMVar a = TMVar (TVar (Maybe a))
 
@@ -26,3 +27,6 @@ putTMVar (TMVar t) a = do
       writeTVar t (Just a)
       return ()
     Just _ -> retry
+
+takeEitherTMVar :: TMVar a -> TMVar b -> STM (Either a b)
+takeEitherTMVar ma mb = fmap Left (takeTMVar ma) `orElse` fmap Right (takeTMVar mb)
