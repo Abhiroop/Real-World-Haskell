@@ -34,7 +34,7 @@ readTBQueue (TBQueue cap read write) = do
       case ys of
         [] -> retry
         _ -> do
-          let (z:zs) = reverse ys
+          let (z:zs) = reverse ys -- This is lazy
           writeTVar write []
           writeTVar read zs
           return z
