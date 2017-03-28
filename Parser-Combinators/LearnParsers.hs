@@ -21,9 +21,6 @@ testParse p = print $ parseString p mempty "123"
 
 pNL s = putStrLn ('\n' : s)
 
-oneStr :: Parser String
-oneStr = string "1"
-
 main = do
   pNL "stop:"
   testParse stop
@@ -35,3 +32,27 @@ main = do
   testParse oneTwo
   pNL "oneTwo':"
   testParse oneTwo'
+
+---------------------------------------------------------------
+oneStr :: Parser String
+oneStr = string "1"
+
+oneTwoStr :: Parser String
+oneTwoStr = string "12"
+
+oneTwoThreeStr :: Parser String
+oneTwoThreeStr = string "123"
+
+testParse' :: Parser String -> IO ()
+testParse' p = print $ parseString p mempty "123"
+-------------------------------------------------------------
+
+stringChar :: [Char] -> Parser b
+stringChar (x:xs) = char x >> stringChar xs
+stringChar [] = eof >> stop
+
+oneTwoThreeChar' = stringChar "123"
+
+testParse'' :: Show a => Parser a -> IO ()
+testParse'' p =
+  print $ parseString p mempty "123"
