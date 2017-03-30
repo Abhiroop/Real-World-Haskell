@@ -61,3 +61,43 @@ skipComments =
   skipMany (do _ <- char ';' <|> char '#'
                skipMany (noneOf "\n")
                skipEOL)
+
+
+sectionEx :: ByteString
+sectionEx = "; ignore me\n[states]\nChris=Texas"
+
+sectionEx' :: ByteString
+sectionEx' = [r|
+; ignore me
+[states]
+Chris=Texas
+|]
+
+sectionEx'' :: ByteString
+sectionEx'' = [r|
+; comment
+[section]
+host=wikipedia.org
+alias=claw
+
+[whatisit]
+red=intoothandclaw
+|]
+
+data Section = Section Header Assignments deriving (Eq, Show)
+
+newtype Config = Config (Map Header Assignments) deriving (Eq, Show)
+
+skipWhitespace :: Parser ()
+skipWhitespace = skipMany (char ' ' <|> char '\n')
+
+parseSection :: Parser Section
+parseSection = do
+  skipWhitespace
+  skipComments
+  h <- parseHeader
+  skipEOL
+  assignments <- some parseAssignment
+  return $ Section h (M.fromList assignments)
+-----------------------------------------------------------
+
