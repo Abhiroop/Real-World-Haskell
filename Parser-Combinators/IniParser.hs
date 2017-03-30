@@ -101,3 +101,17 @@ parseSection = do
   return $ Section h (M.fromList assignments)
 -----------------------------------------------------------
 
+rollup :: Section -> Map Header Assignments -> Map Header Assignments
+rollup (Section h a) m = M.insert h a m
+
+parseIni :: Parser Config
+parseIni = do
+  sections <- some parseSection
+  let mapOfSections = foldr rollup M.empty sections
+  return (Config mapOfSections)
+
+maybeSuccess :: Result a -> Maybe a
+maybeSuccess (Success a) = Just a
+maybeSuccess _ = Nothing
+
+
