@@ -1,9 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 module RandomExample where
 
+import Data.Maybe
 import System.Random
 import Text.ParserCombinators.ReadP
 import Data.Char
+import Data.Text as T
 import Control.Applicative ((<|>))
 data Die = DieOne | DieTwo | DieThree | DieFour | DieFive | DieSix deriving (Eq,Show)
 
@@ -78,7 +80,7 @@ splitMethodSignature = (between (char '(') (char ')') (many (satisfy (\c -> True
 -- (TT;Ljava/util/List<-TX;>;Ljava/util/ArrayList<+TY;>;)
 -- (Ljava/lang/Class<*>;)
 parseParameterType :: ReadP [Char]
-parseParameterType = parseReferenceType
+parseParameterType = (char 'L' >> parseReferenceType)
                  <|> many parsePrimitiveType
 
 parsePrimitiveType :: ReadP Char
@@ -156,3 +158,21 @@ parseReturnType = do
     'V' -> parseVoid
     'I' -> return "Integer"
     'B' -> return "Byte"
+
+-- loop = p <|> (get >> loop)
+getAll :: ReadP a -> ReadP [a]
+getAll p = many loop
+  where
+    loop = p <++ (get >> loop)
+
+showText :: Show a => a -> Text
+showText = T.pack . show
+ -- <E:Ljava/lang/Object;>Ljava/lang/Object;Ljava/lang/Iterable<TE;>;
+ -- <K:Ljava/lang/Object;V:Ljava/lang/Object;>Ljava/lang/Object;
+ -- Ljava/lang/Object;
+splitClassSignature :: ReadP [Char]
+splitClassSignature = do
+  char '<'
+  x <- (many $ satisfy (/= '>'))
+  char '>'
+  return x
