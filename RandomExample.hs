@@ -128,9 +128,9 @@ parseGenericRefType :: ReadP [Char]
 parseGenericRefType = do
   x <- (many $ satisfy (/= '<'))
   char '<'
-  t <- many parseType
+  t <- getAll parseType
   char '>'
-  return ""
+  return x
 
 parseSingleTypeVariable :: ReadP [Char]
 parseSingleTypeVariable = do
@@ -176,3 +176,9 @@ splitClassSignature = do
   x <- (many $ satisfy (/= '>'))
   char '>'
   return x
+
+
+
+
+
+data X = X {a :: Int}

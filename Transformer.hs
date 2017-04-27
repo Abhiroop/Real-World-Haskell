@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 module Transformer where
-
+import Data.List
 import Control.Monad.Identity
 import Control.Monad.Except
 import Control.Monad.Reader
@@ -216,3 +216,14 @@ eval6 (App e1 e2) = do tick
                        case val1 of
                          FunVal env' n body -> local (const (Map.insert n val2 env')) (eval6 body)
                          _ -> throwError "type error in application"
+
+
+
+
+
+
+
+data X = X {a :: Integer,b :: String, c :: String}
+
+data M a = M a [Maybe a]
+
