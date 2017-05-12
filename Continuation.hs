@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleContexts, Rank2Types, ScopedTypeVariables, InstanceSigs#-}
 module Continuation where
 
-import Control.Monad(liftM,ap)
+import Control.Monad(liftM,ap,liftM2)
 import Control.Monad.Trans(MonadTrans(..))
 
 newtype Trampoline m r =
@@ -39,3 +39,32 @@ run (Trampoline mr) = do
   case v of
     Right r -> return r
     Left t -> run t
+
+mzipWith :: Monad m => (a -> b -> c) -> Trampoline m a -> Trampoline m b -> Trampoline m c
+mzipWith f t1 t2 = Trampoline (liftM2 bind (bounce t1) (bounce t2))
+  where bind (Left a) (Left b) = Left (mzipWith f a b)
+        bind (Left a) (Right b) = Left (mzipWith f a (return b))
+        bind (Right a) (Left b) = Left (mzipWith f (return a) b)
+        bind (Right a) (Right b) = Right (f a b)
+
+interleave :: Monad m => [Trampoline m r] -> Trampoline m [r]
+interleave = foldr (mzipWith (:)) (return [])
+
+
+
+
+
+
+hello = do { lift (putStr "Hello, ");
+             pause ;
+             lift (putStrLn "World");
+             pause;
+             lift (putStrLn "everyone");
+           }
+
+test = do { Left continuation <- bounce hello
+           ; putStr "Wonderful "
+           ; Left c <- bounce continuation
+           ; putStr "How is "
+           ; run c
+           }
