@@ -62,6 +62,9 @@ hello = do { lift (putStr "Hello, ");
              lift (putStrLn "everyone");
            }
 
+
+
+
 test = do { Left continuation <- bounce hello
            ; putStr "Wonderful "
            ; Left c <- bounce continuation
