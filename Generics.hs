@@ -90,3 +90,28 @@ instance Constructor C1_Tree_Leaf where
 instance Constructor C1_Tree_Branch where
 
   conName _ = "Branch"
+
+
+data Tree2 a = Leaf2 | Branch2 (Tree2 a) a (Tree2 a) deriving (Show,Generic)
+
+
+class Serializable' f where
+
+  put' :: f p -> [Bit]
+  get' :: [Bit] -> (f p, [Bit])
+
+{-
+data V1 p
+
+infixr 5 :+:
+data (:+:) f g p = L1 (f p) | R1 (g p)
+
+data U1 p = U1
+
+infixr 6 :*:
+data (:*:) f g p = f p :*: g p
+
+newtype K1 i a p = K1 { unK1 :: a }
+
+newtype M1 i c f p = M1 { unM1 :: f p }
+-}
