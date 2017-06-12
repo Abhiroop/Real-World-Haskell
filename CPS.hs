@@ -26,3 +26,7 @@ prog_6 = \k ->
     add 7 9 (\sixteen ->
       mul five sixteen (\eighty ->
          add eighty 5 k)))
+
+newtype Cont r a = Cont {runCont :: (a -> r) -> r}
+
+
