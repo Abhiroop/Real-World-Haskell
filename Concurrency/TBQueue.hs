@@ -1,6 +1,9 @@
 module TBQueue where
 
-import Control.Concurrent.STM hiding (TBQueue)
+import Control.Concurrent.STM hiding (TBQueue,
+                                     newTBQueue,
+                                     writeTBQueue,
+                                     readTBQueue)
 
 data TBQueue a = TBQueue (TVar Int) (TVar [a]) (TVar [a])
 
@@ -38,3 +41,17 @@ readTBQueue (TBQueue cap read write) = do
           writeTVar write []
           writeTVar read zs
           return z
+
+-- Try implementing peek
+
+-- newTBQueue :: Int -> STM (TBQueue a)
+-- writeTBQueue :: TBQueue a -> a -> STM ()
+-- readTBQueue :: TBQueue a -> STM a
+action :: STM ()
+action = do
+  x <- newTBQueue 6
+  writeTBQueue x "hello"
+  -- readTBQueue x
+
+main :: IO ()
+main = atomically action

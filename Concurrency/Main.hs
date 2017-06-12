@@ -1,4 +1,4 @@
-module DiningPhilosopher where
+module Main where
 
 import Control.Monad
 import Control.Concurrent
@@ -44,10 +44,10 @@ philosophers :: [String]
 philosophers = ["Aristotle", "Kant", "Spinoza", "Marx", "Russel"]
 
 main = do
-  forks <- mapM newFork [1..5]
-  let namedPhilosophers     = map runPhilosopher philosophers
-      forkPairs             = zip forks (tail . cycle $ forks)
-      philosophersWithForks = zipWith ($) namedPhilosophers forkPairs
+  forks <- mapM newFork [1..5] -- :: IO [Fork]
+  let namedPhilosophers     = map runPhilosopher philosophers -- :: [(Fork, Fork) -> IO ()]
+      forkPairs             = zip forks (tail . cycle $ forks)-- :: [(Fork,Fork)]
+      philosophersWithForks = zipWith ($) namedPhilosophers forkPairs -- [IO()]
 
   putStrLn "Running the philosophers. Press enter to quit."
 
