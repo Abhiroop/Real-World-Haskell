@@ -4,6 +4,7 @@ module RecusrsionSchemes2 where
 
 import Control.Arrow
 import Data.Monoid
+import Data.Function
 import Text.PrettyPrint (Doc)
 import qualified Text.PrettyPrint as P
 
@@ -55,4 +56,24 @@ bottomUp f = cata (In >>> f)
 
 type CoAlgebra f a = a -> f a
 
+type RAlgebra f a = f (Term f, a) -> a
 
+para :: (Functor f) => RAlgebra f a -> Term f -> a
+para f = out >>> fmap (id &&& para f) >>> f
+
+type RAlgebra' f a = Term f -> f a -> a
+
+-- & is reverse function application
+para'' :: Functor f => RAlgebra' f a -> Term f -> a
+para'' alg t = out t & fmap (para'' alg) & alg t
+
+cata' :: (Functor f) => Algebra f a -> Term f -> a
+cata' f = para'' $ const f
+
+type RCoalgebra f a = a -> f (Either (Term f) a)
+
+apo :: (Functor f) => RCoalgebra f a -> a -> Term f
+apo f = In <<< fmap fanin <<< f where fanin = either id (apo f)
+
+apo' :: Functor f => RCoalgebra f a -> a -> Term f
+apo' f = In <<< fmap (id ||| apo' f) <<< f
