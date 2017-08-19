@@ -70,12 +70,14 @@ eventHandlers = unsafePerformIO $ newMVar M.empty
 type EvType = String
 data Event = forall a. Event EvType a
 
+waitEvent :: (MonadState EventF m, MonadIO m) => String -> Transient m a
 waitEvent name = Transient $ do
   f <- get
   evs <- liftIO $ takeMVar eventHandlers
   liftIO . putMVar eventHandlers . M.insert name f $ evs
   return Nothing
 
+eventLoop :: [Event] -> IO ()
 eventLoop [] = return ()
 eventLoop (Event name r : evs) = do
     liftIO . putStrLn $ "new event: " ++ name
