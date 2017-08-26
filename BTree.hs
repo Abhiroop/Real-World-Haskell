@@ -51,3 +51,6 @@ insert  x (Tree tree) = ins tree Tree (\a b c -> Tree (t1 a b c))
             xltb = ins a (\k -> keep (t1 k b c)) (\p q r -> keep (t2 p q r b c))
             xgtb = ins c (\k -> keep (t1 a b k)) (\p q r -> keep (t2 a b p q r))
             xeqb = keep (t1 a x c)
+
+delete :: forall a. Ord a => a -> Tree a -> Tree a
+delete x (Tree tree) = undefined
