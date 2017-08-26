@@ -37,5 +37,17 @@ insert  x (Tree tree) = ins tree Tree (\a b c -> Tree (t1 a b c))
 
     ins (Br n) = i n
       where
-        i :: forall p m. N p a -> Keep t m a -> Push t m a -> t
-        i = undefined
+        i :: forall p m. (S p ~ m) => N p a -> Keep t m a -> Push t m a -> t
+        i (T2 a b c d e) keep push = select2 x b d xltb xeqb xbtw xeqd xgtd
+          where
+            xltb = ins a (\k -> keep (t2 k b c d e)) (\p q r -> push (t1 p q r) b (t1 c d e))
+            xbtw = ins c (\k -> keep (t2 a b k d e)) (\p q r -> push (t1 a b p) q (t1 r d e))
+            xgtd = ins e (\k -> keep (t2 a b c d k)) (\p q r -> push (t1 a b c) d (t1 p q r))
+            xeqb = keep (t2 a x c d e)
+            xeqd = keep (t2 a b c x e)
+
+        i (T1 a b c) keep push = select1 x b xltb xeqb xgtb
+          where
+            xltb = ins a (\k -> keep (t1 k b c)) (\p q r -> keep (t2 p q r b c))
+            xgtb = ins c (\k -> keep (t1 a b k)) (\p q r -> keep (t2 a b p q r))
+            xeqb = keep (t1 a x c)
