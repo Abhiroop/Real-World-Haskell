@@ -26,4 +26,16 @@ data Nat = Z | S Nat | M | P
 data Tree a where
   Tree :: T n a -> Tree a
 
+type Keep t n a = T n a -> t
+type Push t n a = T n a -> a -> T n a -> t
 
+insert :: forall a . Ord a => a -> Tree a -> Tree a
+insert  x (Tree tree) = ins tree Tree (\a b c -> Tree (t1 a b c))
+  where
+    ins :: forall n t . T n a -> Keep t n a -> Push t n a -> t
+    ins LF = \keep push -> push LF x LF
+
+    ins (Br n) = i n
+      where
+        i :: forall p m. N p a -> Keep t m a -> Push t m a -> t
+        i = undefined
