@@ -7,6 +7,7 @@
 
 module IndexedMonad where
 
+import Prelude hiding (id, (.))
 data FHState where
   Open   :: FHState
   Closed :: FHState
@@ -21,4 +22,15 @@ data Witness a (s1 :: state) (s2 :: state) where
 
 type a :-> b = forall state. a state -> b state
 
+-- | Let us define identity and composition
 
+id :: a :-> a
+id x = x
+
+(.) :: (b :-> c) -> (a :-> b) -> (a :-> c)
+(.) f g = \x -> f (g x)
+
+-- | We have identity and composition. So now we have a category. A "slice category".
+
+class IFunctor f where
+  imap :: (a :-> b) -> f a :-> f b
