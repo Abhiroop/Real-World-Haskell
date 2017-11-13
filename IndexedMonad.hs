@@ -34,3 +34,7 @@ id x = x
 
 class IFunctor f where
   imap :: (a :-> b) -> f a :-> f b
+
+class IFunctor m => IMonad m where
+  iskip   :: a :-> m a
+  iextend :: (a :-> m b) -> m a :-> m b
