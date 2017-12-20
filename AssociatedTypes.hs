@@ -8,7 +8,7 @@ module AssociatedTypes where
 import Control.Concurrent.MVar
 import Control.Concurrent.STM
 import Data.IORef
-
+import Data.Map hiding (map)
 -- Mimic Functional Dependencies
 class Store store where
   type StoreMonad store :: * -> *
@@ -59,3 +59,48 @@ class Cons a b where
 instance Cons Integer Double where
   type ResTy Integer Double = Double
   cons x ys = fromIntegral x : ys
+
+-- data families
+class Graph g where
+  type Vertex g
+  data Edge g
+  src :: Edge g -> Vertex g
+  tgt :: Edge g -> Vertex g
+  outEdges :: g -> Vertex g -> [Edge g]
+
+newtype G1 = G1 [Edge G1]
+
+instance Graph G1 where
+  type Vertex G1 = Int
+  data Edge G1 = MkEdge1 (Vertex G1) (Vertex G1)
+  src = undefined
+  tgt = undefined
+  outEdges = undefined
+
+newtype G2 = G2 (Map (Vertex G2) [Vertex G2])
+
+instance Graph G2 where
+  type Vertex G2 = String
+  data Edge G2 = MkEdge2 Int (Vertex G2) (Vertex G2)
+  src = undefined
+  tgt = undefined
+  outEdges = undefined
+
+-- Recursive type functions
+instance (Add Integer a) => Add Integer [a] where
+  type SumTy Integer [a] = [SumTy Integer a]
+  add x y = map (add x) y
+
+
+
+
+
+
+
+
+
+
+
+
+
+
