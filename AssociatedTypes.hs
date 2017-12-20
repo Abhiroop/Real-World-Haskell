@@ -9,6 +9,7 @@ import Control.Concurrent.MVar
 import Control.Concurrent.STM
 import Data.IORef
 
+-- Mimic Functional Dependencies
 class Store store where
   type StoreMonad store :: * -> *
   new :: a -> (StoreMonad store) (store a)
@@ -33,6 +34,7 @@ instance Store TVar where
   get = readTVar
   put ioref a = modifyTVar ioref (const a)
 
+-- Implicit coercions
 class Add a b where
   type SumTy a b
   add :: a -> b -> SumTy a b
@@ -48,3 +50,8 @@ instance Add Double Integer where
 instance Num a => Add a a where
   type SumTy a a = a
   add x y = x + y
+
+-- Heterogenous Lists
+class Cons a b where
+  type ResTy a b
+  cons :: a -> [b] -> [ResTy a b]
