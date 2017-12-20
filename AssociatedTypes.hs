@@ -91,15 +91,34 @@ instance (Add Integer a) => Add Integer [a] where
   type SumTy Integer [a] = [SumTy Integer a]
   add x y = map (add x) y
 
+-- Memoization
+class Memo a where
+  data Table a :: * -> *
+  toTable :: (a -> w) -> Table a w
+  fromTable :: Table a w -> (a -> w)
+
+instance Memo Bool where
+  data Table Bool w = TBool w w
+  toTable f = TBool (f True) (f False)
+  fromTable (TBool x y) b = if b then x else y
+
+f :: Bool -> Int
+f = undefined
+
+g :: Bool -> Int
+g = fromTable (toTable f)
 
 
+instance (Memo a, Memo b) => Memo (Either a b) where
+  data Table (Either a b) w = TSum (Table a w) (Table b w)
+  toTable f = TSum (toTable (f . Left)) (toTable (f . Right))
+  fromTable (TSum t _) (Left v) = fromTable t v
+  fromTable (TSum _ t) (Right v) = fromTable t v
 
-
-
-
-
-
-
+instance (Memo a, Memo b) => Memo (a,b) where
+  newtype Table (a,b) w = TProduct (Table a (Table b w))
+  toTable f = TProduct (toTable (\x -> toTable (\y -> f (x,y))))
+  fromTable (TProduct t) (x,y) = fromTable (fromTable t x) y
 
 
 
