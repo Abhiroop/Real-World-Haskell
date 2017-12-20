@@ -55,3 +55,7 @@ instance Num a => Add a a where
 class Cons a b where
   type ResTy a b
   cons :: a -> [b] -> [ResTy a b]
+
+instance Cons Integer Double where
+  type ResTy Integer Double = Double
+  cons x ys = fromIntegral x : ys
