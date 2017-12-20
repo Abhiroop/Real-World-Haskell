@@ -120,6 +120,13 @@ instance (Memo a, Memo b) => Memo (a,b) where
   toTable f = TProduct (toTable (\x -> toTable (\y -> f (x,y))))
   fromTable (TProduct t) (x,y) = fromTable (fromTable t x) y
 
+instance (Memo a) => Memo [a] where
+  data Table [a] w = TList w (Table a (Table [a] w))
+  toTable f = TList (f [])
+                    (toTable (\x -> toTable (\xs -> f (x:xs))))
+  fromTable (TList t _) [] = t
+  fromTable (TList _ t) (x:xs) = fromTable (fromTable t x) xs
+
 
 
 
