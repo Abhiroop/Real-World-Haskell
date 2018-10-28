@@ -122,5 +122,6 @@ bar = filter1 (>0)
 main :: IO ()
 main = do
   let x = [1..10000000]
-  m <- fromStream1 $ bar $ toStream1 x
+  m <- fromStream $ foo $ toStream x
+  -- m <- fromStream1 $ bar $ toStream1 x
   print $ length m
